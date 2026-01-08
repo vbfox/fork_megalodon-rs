@@ -2875,9 +2875,9 @@ impl megalodon::Megalodon for Gotosocial {
         Box::new(c)
     }
 
-    async fn get_linked_response<T: fmt::Debug + DeserializeOwned + Sync>(
+    async fn get_linked_response<T: fmt::Debug + DeserializeOwned + Send>(
         &self,
-        linked_reponse: &LinkedResponse<T>,
+        linked_reponse: LinkedResponse<T>,
     ) -> Result<Response<T>, Error> {
         let res = self
             .client

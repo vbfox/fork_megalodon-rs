@@ -1,6 +1,7 @@
 //! Response modules
 use reqwest::header::HeaderMap;
 use serde::de::DeserializeOwned;
+use url::Url;
 use std::{fmt::Debug, sync::LazyLock};
 
 use crate::{error::Error, Megalodon};
@@ -32,12 +33,12 @@ pub struct Response<T> {
 /// A struct to wrap the previous and next uris provided in paginated responses.
 #[derive(Clone)]
 pub struct LinkedResponse<T> {
-    pub url: reqwest::Url,
+    pub url: Url,
     phantom: std::marker::PhantomData<T>,
 }
 
 impl<T> LinkedResponse<T> {
-    pub(crate) fn new(url: reqwest::Url) -> Self {
+    pub(crate) fn new(url: Url) -> Self {
         Self {
             url: url,
             phantom: std::marker::PhantomData,
@@ -97,18 +98,16 @@ impl<T> Response<T> {
             Err(e) => return Err(e.into()),
         };
 
-        let parsed = match parse_link_header::parse(value_str) {
+        let mut parsed = match parse_link_header::parse(value_str) {
             Ok(links) => links,
             Err(e) => return Err(e.into()),
         };
 
-        let Some(link) = parsed.get(rel) else {
+        let Some(link) = parsed.remove(rel) else {
             return Ok(None);
         };
 
-        Ok(Some(LinkedResponse::new(
-            reqwest::Url::parse(&link.raw_uri).unwrap(),
-        )))
+        Ok(Some(LinkedResponse::new(link.uri)))
     }
 
     pub fn next_uri(&self) -> Result<Option<LinkedResponse<T>>, Error> {

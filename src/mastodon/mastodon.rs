@@ -327,7 +327,7 @@ impl megalodon::Megalodon for Mastodon {
     async fn get_account(&self, id: String) -> Result<Response<MegalodonEntities::Account>, Error> {
         let res = self
             .client
-            .get::<entities::Account>(format!("/api/v1/accounts/{}", id).as_str(), None)
+            .get::<entities::Account>(format!("/api/v1/accounts/{}", id), None)
             .await?;
 
         Ok(Response::<MegalodonEntities::Account>::new(
@@ -373,7 +373,7 @@ impl megalodon::Megalodon for Mastodon {
         }
         let res = self
             .client
-            .get::<Vec<entities::Status>>(url.as_str(), None)
+            .get::<Vec<entities::Status>>(url, None)
             .await?;
 
         Ok(Response::<Vec<MegalodonEntities::Status>>::new(
@@ -510,7 +510,7 @@ impl megalodon::Megalodon for Mastodon {
     ) -> Result<Response<Vec<MegalodonEntities::List>>, Error> {
         let res = self
             .client
-            .get::<Vec<entities::List>>(format!("/api/v1/accounts/{}/lists", id).as_ref(), None)
+            .get::<Vec<entities::List>>(format!("/api/v1/accounts/{}/lists", id), None)
             .await?;
 
         Ok(Response::<Vec<MegalodonEntities::List>>::new(
@@ -528,7 +528,7 @@ impl megalodon::Megalodon for Mastodon {
         let res = self
             .client
             .get::<Vec<entities::IdentityProof>>(
-                format!("/api/v1/accounts/{}/identity_proofs", id).as_ref(),
+                format!("/api/v1/accounts/{}/identity_proofs", id),
                 None,
             )
             .await?;
@@ -765,7 +765,7 @@ impl megalodon::Megalodon for Mastodon {
         let path = "/api/v1/accounts/relationships?".to_string() + params.join("&").as_str();
         let res = self
             .client
-            .get::<Vec<entities::Relationship>>(path.as_ref(), None)
+            .get::<Vec<entities::Relationship>>(path, None)
             .await?;
 
         Ok(Response::<Vec<MegalodonEntities::Relationship>>::new(
@@ -805,7 +805,7 @@ impl megalodon::Megalodon for Mastodon {
         }
         let res = self
             .client
-            .get::<Vec<entities::Account>>(path.as_str(), None)
+            .get::<Vec<entities::Account>>(path, None)
             .await?;
 
         Ok(Response::<Vec<MegalodonEntities::Account>>::new(
@@ -827,7 +827,7 @@ impl megalodon::Megalodon for Mastodon {
         }
         let res = self
             .client
-            .get::<entities::Account>(path.as_str(), None)
+            .get::<entities::Account>(path, None)
             .await?;
 
         Ok(Response::<MegalodonEntities::Account>::new(
@@ -863,7 +863,7 @@ impl megalodon::Megalodon for Mastodon {
         }
         let res = self
             .client
-            .get::<Vec<entities::Status>>(path.as_str(), None)
+            .get::<Vec<entities::Status>>(path, None)
             .await?;
 
         Ok(Response::<Vec<MegalodonEntities::Status>>::new(
@@ -896,7 +896,7 @@ impl megalodon::Megalodon for Mastodon {
         }
         let res = self
             .client
-            .get::<Vec<entities::Status>>(path.as_str(), None)
+            .get::<Vec<entities::Status>>(path, None)
             .await?;
 
         Ok(Response::<Vec<MegalodonEntities::Status>>::new(
@@ -962,7 +962,7 @@ impl megalodon::Megalodon for Mastodon {
         }
         let res = self
             .client
-            .get::<Vec<entities::Account>>(path.as_str(), None)
+            .get::<Vec<entities::Account>>(path, None)
             .await?;
 
         Ok(Response::<Vec<MegalodonEntities::Account>>::new(
@@ -3255,9 +3255,9 @@ impl megalodon::Megalodon for Mastodon {
         Box::new(c)
     }
 
-    async fn get_linked_response<T: fmt::Debug + DeserializeOwned + Sync>(
+    async fn get_linked_response<T: fmt::Debug + DeserializeOwned + Send>(
         &self,
-        linked_reponse: &LinkedResponse<T>,
+        linked_reponse: LinkedResponse<T>,
     ) -> Result<Response<T>, Error> {
         let res = self
             .client

@@ -32,7 +32,6 @@ async-trait = "0.1.80"
 chrono = { version = "0.4.38", features = ["serde"] }
 futures-util = "0.3.30"
 hex = "0.4"
-http = "1"
 mime_guess = "2.0"
 oauth2 = "5.0"
 rand = "0.9"
@@ -56,7 +55,7 @@ rustls-native-certs = { version = "0.8", optional = true }
 rustls-pki-types = { version = "1", optional = true }
 urlencoding = "2.1"
 uuid = { version = "1.8", features = ["v4"] }
-parse_link_header = "0.4.0"
+parse_link_header = { version = "0.4.0", default-features = false, features = ["url"] }
 
 [dev-dependencies]
 tracing-subscriber = { version = "0.3.20", features = ["env-filter"] }

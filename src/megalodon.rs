@@ -802,11 +802,11 @@ pub trait Megalodon {
     // ======================================
     async fn get_linked_response<T>(
         &self,
-        linked_reponse: &LinkedResponse<T>,
+        linked_reponse: LinkedResponse<T>,
     ) -> Result<Response<T>, Error>
     where
         Self: Sized,
-        T: fmt::Debug + DeserializeOwned + Sync;
+        T: fmt::Debug + DeserializeOwned + Send;
 }
 
 /// Input options for [`Megalodon::register_app`] and [`Megalodon::create_app`].
