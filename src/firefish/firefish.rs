@@ -1,7 +1,9 @@
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
+use core::fmt;
 use rand::RngCore;
 use regex::Regex;
+use serde::de::DeserializeOwned;
 use serde_json::Value;
 use sha1::{Digest, Sha1};
 use std::{collections::HashMap, str::FromStr};
@@ -19,7 +21,7 @@ use crate::{
     error::{self, Error},
     megalodon::{self, FollowRequestOutput},
     oauth as MegalodonOAuth,
-    response::Response,
+    response::{LinkedResponse, Response},
 };
 
 /// Firefish API Client which satisfies megalodon trait.
@@ -2667,5 +2669,22 @@ impl megalodon::Megalodon for Firefish {
         );
 
         Box::new(c)
+    }
+
+    async fn get_linked_response<T: fmt::Debug + DeserializeOwned + Sync>(
+        &self,
+        linked_reponse: &LinkedResponse<T>,
+    ) -> Result<Response<T>, Error> {
+        let res = self
+            .client
+            .get::<T>(linked_reponse.url.to_string().as_str(), None)
+            .await?;
+
+        Ok(Response::<T>::new(
+            res.json.into(),
+            res.status,
+            res.status_text,
+            res.header,
+        ))
     }
 }

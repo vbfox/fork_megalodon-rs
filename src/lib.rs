@@ -60,6 +60,7 @@ pub mod pleroma;
 pub mod response;
 pub mod streaming;
 pub(crate) mod tls;
+mod urls;
 
 pub use self::megalodon::Megalodon;
 use crate::error::Error;

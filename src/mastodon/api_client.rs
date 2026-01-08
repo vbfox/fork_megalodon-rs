@@ -1,6 +1,7 @@
 use crate::default::DEFAULT_UA;
 use crate::error::{Error as MegalodonError, Kind};
 use crate::response::Response;
+use crate::urls::RelativeOrAbsoluteUrl;
 use reqwest::header::HeaderMap;
 use reqwest::Url;
 use serde::de::DeserializeOwned;
@@ -38,16 +39,15 @@ impl APIClient {
 
     pub async fn get<T>(
         &self,
-        path: &str,
+        path: impl Into<RelativeOrAbsoluteUrl>,
         headers: Option<HeaderMap>,
     ) -> Result<Response<T>, MegalodonError>
     where
         T: DeserializeOwned + Debug,
     {
-        let url_str = format!("{}{}", self.base_url, path);
-        let url = Url::parse(&*url_str)?;
+        let url = path.into().to_url(&self.base_url)?;
 
-        let mut req = self.client.get(url);
+        let mut req = self.client.get(url.clone());
         if let Some(token) = &self.access_token {
             req = req.bearer_auth(token);
         }
@@ -69,7 +69,7 @@ impl APIClient {
             reqwest::StatusCode::PARTIAL_CONTENT => Err(MegalodonError::new_own(
                 String::from("The requested resource is still being processed"),
                 Kind::HTTPPartialContentError,
-                Some(url_str),
+                Some(url.into()),
                 Some(status.as_u16()),
                 Some(res_headers),
             )),
@@ -77,14 +77,14 @@ impl APIClient {
                 Ok(text) => Err(MegalodonError::new_own(
                     text,
                     Kind::HTTPStatusError,
-                    Some(url_str),
+                    Some(url.into()),
                     Some(status.as_u16()),
                     Some(res_headers),
                 )),
                 Err(_err) => Err(MegalodonError::new_own(
                     "Unknown error".to_string(),
                     Kind::HTTPStatusError,
-                    Some(url_str),
+                    Some(url.into()),
                     Some(status.as_u16()),
                     Some(res_headers),
                 )),

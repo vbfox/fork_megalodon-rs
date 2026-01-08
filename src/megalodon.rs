@@ -5,10 +5,11 @@ use std::str::FromStr;
 
 use crate::error::{Error, Kind};
 use crate::oauth::{AppData, TokenData};
-use crate::response::Response;
+use crate::response::{LinkedResponse, Response};
 use crate::{entities, Streaming};
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
+use serde::de::DeserializeOwned;
 use serde::Serialize;
 use tokio::{fs::File, io::AsyncRead};
 
@@ -455,7 +456,8 @@ pub trait Megalodon {
         options: Option<&UploadMediaInputOptions>,
     ) -> Result<Response<entities::UploadMedia>, Error> {
         let file = File::open(file_path.clone()).await?;
-        self.upload_media_reader(Box::new(file), options, Some(file_path)).await
+        self.upload_media_reader(Box::new(file), options, Some(file_path))
+            .await
     }
 
     async fn upload_media_reader(
@@ -794,6 +796,17 @@ pub trait Megalodon {
 
     /// Get list streaming object.
     async fn list_streaming(&self, list_id: String) -> Box<dyn Streaming + Send + Sync>;
+
+    // ======================================
+    // Next/Previous linked responses
+    // ======================================
+    async fn get_linked_response<T>(
+        &self,
+        linked_reponse: &LinkedResponse<T>,
+    ) -> Result<Response<T>, Error>
+    where
+        Self: Sized,
+        T: fmt::Debug + DeserializeOwned + Sync;
 }
 
 /// Input options for [`Megalodon::register_app`] and [`Megalodon::create_app`].

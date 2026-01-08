@@ -14,10 +14,10 @@ use serde::Deserialize;
 use tokio_tungstenite::{
     connect_async_tls_with_config,
     tungstenite::{
-        Error as WebSocketError,
         client::IntoClientRequest,
         http::StatusCode,
-        protocol::{Message as WebSocketMessage, frame::coding::CloseCode},
+        protocol::{frame::coding::CloseCode, Message as WebSocketMessage},
+        Error as WebSocketError,
     },
 };
 use tracing::{debug, error, info, warn};

@@ -13,6 +13,14 @@ pub enum Error {
     /// This error will be raised when the request is invalid or failed to parse the response in reqwest.
     #[error(transparent)]
     RequestError(#[from] reqwest::Error),
+    /// RequestHeaderToStrError from [`reqwest::header::ToStrError`].
+    /// This error will be raised when a needed request header has an invalid string value.
+    #[error(transparent)]
+    RequestHeaderToStrError(#[from] reqwest::header::ToStrError),
+    /// ParseLinkHeaderError from [`parse_link_header::Error`].
+    /// This error will be raised when a link header for next or prev can't be parsed.
+    #[error(transparent)]
+    ParseLinkHeaderError(#[from] parse_link_header::Error),
     /// StandardError from [`std::io::Error`].
     /// This error will be raised when some standard error has occur.
     #[error(transparent)]

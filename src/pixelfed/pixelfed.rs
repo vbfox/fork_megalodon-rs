@@ -1,3 +1,4 @@
+use core::fmt;
 use std::collections::HashMap;
 
 use super::api_client::APIClient;
@@ -5,6 +6,7 @@ use super::entities;
 use super::oauth;
 use super::web_socket::WebSocket;
 use crate::megalodon::FollowRequestOutput;
+use crate::response::LinkedResponse;
 use crate::{Streaming, error};
 use crate::{
     default, entities as MegalodonEntities, error::Error, megalodon, oauth as MegalodonOAuth,
@@ -18,6 +20,7 @@ use oauth2::basic::BasicClient;
 use oauth2::{
     AuthUrl, ClientId, ClientSecret, CsrfToken, RedirectUrl, ResponseType, Scope, TokenUrl,
 };
+use serde::de::DeserializeOwned;
 use serde_json::Value;
 use sha1::{Digest, Sha1};
 use std::ops::Sub;
@@ -2937,5 +2940,22 @@ impl megalodon::Megalodon for Pixelfed {
         let c = WebSocket::new();
 
         Box::new(c)
+    }
+
+    async fn get_linked_response<T: fmt::Debug + DeserializeOwned + Sync>(
+        &self,
+        linked_reponse: &LinkedResponse<T>,
+    ) -> Result<Response<T>, Error> {
+        let res = self
+            .client
+            .get::<T>(linked_reponse.url.to_string().as_str(), None)
+            .await?;
+
+        Ok(Response::<T>::new(
+            res.json.into(),
+            res.status,
+            res.status_text,
+            res.header,
+        ))
     }
 }
